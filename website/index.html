@@ -396,6 +396,19 @@ section h2{display:table}
 .floater:nth-of-type(3n+1){background:rgba(185,167,245,.09);border-color:rgba(185,167,245,.25)}
 @keyframes floatpop{0%{opacity:0;transform:scale(.3)}8%{opacity:.85;transform:scale(1.08)}12%{transform:scale(1)}80%{opacity:.75;transform:translateY(-28px)}100%{opacity:0;transform:translateY(-44px) scale(.9)}}
 @media (prefers-reduced-motion:reduce){.prompt-pill{opacity:1;transform:none}}
+
+/* ===== interactive bot ===== */
+.bot{animation:none;align-self:start}
+.bot-av{font-size:20px!important}
+.bot-body{height:300px;overflow-y:auto;justify-content:flex-start;-webkit-mask:none;mask:none;scrollbar-width:thin;scrollbar-color:#262626 transparent}
+.bot-body .msg:first-child{margin-top:auto}
+.bot-sugg{display:flex;gap:8px;overflow-x:auto;padding:4px 14px 2px;scrollbar-width:none}
+.bot-sugg::-webkit-scrollbar{display:none}
+.bot-sugg .chip{cursor:pointer;white-space:nowrap;flex:none;font-size:12px}
+.bot-input input{flex:1;background:none;border:none;padding:0;color:var(--text);font-family:var(--mono);font-size:13px;box-shadow:none!important}
+.bot-input:focus-within{border-color:#b9a7f5;box-shadow:0 0 0 3px rgba(185,167,245,.15)}
+.bot-input .send{border:none;cursor:pointer;transition:transform .2s}
+.bot-input .send:hover{transform:scale(1.1)}
 </style>
 </head>
 <body>
@@ -480,19 +493,18 @@ section h2{display:table}
         <p>Right now I'm learning about <strong>vision-language models</strong> — AI that combines images and language — and I'm keen to contribute to research on data annotation and on teaching machines to read <strong>social and nonverbal cues</strong>.</p>
         <a href="#experience" class="link-arrow">See my experience →</a>
       </div>
-      <div class="term reveal">
-        <div class="term-bar"><i></i><i></i><i></i><span>akshara@dev:~/about.py</span></div>
-        <div class="term-body">
-<div><span class="k">class</span> Akshara:</div>
-<div>&nbsp;&nbsp;focus = [<span class="s">"active learning"</span>,</div>
-<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"computer vision"</span>,</div>
-<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"behaviour analysis"</span>]</div>
-<div>&nbsp;&nbsp;learning = <span class="s">"vision-language models"</span></div>
-<div>&nbsp;&nbsp;datasets = [<span class="s">"DAiSEE"</span>, <span class="s">"AMI"</span>]</div>
-<div>&nbsp;&nbsp;status = <span class="s">"open to research"</span></div>
-<div><span class="c"># python about.py</span></div>
-<div><span class="p">→</span> curious, careful with labels, ships.</div>
+      <div class="profile chat bot reveal" aria-label="Chat with Akshara's AI assistant">
+        <div class="chat-head">
+          <div class="avatar bot-av">✦</div>
+          <div><h3>akshara-bot</h3><div class="sub"><span class="online"></span>AI assistant · ask me anything about Akshara</div></div>
         </div>
+        <div class="chat-body bot-body" id="botBody" aria-live="polite"></div>
+        <div class="bot-sugg" id="botSugg"></div>
+        <form class="chat-input bot-input" id="botForm" autocomplete="off">
+          <span class="spark">✦</span>
+          <input id="botQ" aria-label="Your question" placeholder="Type a question… e.g. what has she built?">
+          <button class="send" type="submit" aria-label="Send">↑</button>
+        </form>
       </div>
     </div>
   </div>
@@ -800,6 +812,45 @@ async function typeInto(el,text,speed){for(let i=1;i<=text.length;i++){el.textCo
     await sleep(2400);
   }
 })();
+
+// ===== interactive akshara-bot (answers from the CV) =====
+const KB=[
+ {k:['hi','hello','hey','yo','namaste','hola'],a:"Hey there 👋 I'm Akshara's AI assistant. Ask me about her projects, experience, skills or how to reach her."},
+ {k:['who','about her','about akshara','yourself','introduce','akshara'],a:"Akshara is a 2nd-year B.Tech CSE student at VIT Bhopal. She builds ML systems that try to understand human behaviour — gaze, posture, engagement and group dynamics."},
+ {k:['activelabel','active label','active learning','annotation','label','daisee'],a:"ActiveLabel is her active-learning pipeline. It compares random, uncertainty-based and diversity-based sampling to find the most informative 5% of video clips to label — so models train well even when expert labels are scarce. Built with Python, PyTorch, Scikit-learn and the DAiSEE dataset."},
+ {k:['group','dynamics','gaze','robot','meeting','ami','orientation','dominant','mediapipe'],a:"Group Dynamics is a multi-person behaviour analysis system. Using gaze direction and body orientation (OpenCV + MediaPipe on the AMI Meeting Corpus), it spots dominant speakers and disengaged participants — aimed at socially aware human-robot interaction."},
+ {k:['bulkflight','flight','booking','marketplace','airline','next'],a:"BulkFlight is a group-booking marketplace concept: it gathers 30–40 passengers going to the same place on the same date, negotiates bulk fares with airlines and passes the savings on. Stack: Next.js, Node.js, TypeScript, PostgreSQL, Prisma."},
+ {k:['project','built','build','work on','portfolio','made'],a:"She's built three main projects: ✦ ActiveLabel (active learning for behaviour annotation), ✦ Group Dynamics (multi-person behaviour analysis), and ✦ BulkFlight (a group flight-booking marketplace). Ask me about any of them!"},
+ {k:['siemens','intern','experience','job','industry','worked','company'],a:"She was an AI/ML Intern at Siemens Ltd., Nashik (May–Jul 2026). She analysed operator workflows, turned shop-floor knowledge into structured data, helped define defect categories and inspection criteria, and spotted problems suited to vision-based automation."},
+ {k:['education','college','university','vit','study','degree','cgpa','gpa','course','student'],a:"She's studying B.Tech in Computer Science Engineering at VIT Bhopal (2025–2029), CGPA 7.56/10. Courses include Data Structures, Algorithms, AI and Machine Learning."},
+ {k:['skill','stack','tech','tools','python','pytorch','opencv','framework','know'],a:"Her stack: Python, PyTorch, Scikit-learn, OpenCV, MediaPipe for ML & vision; NumPy, Pandas, Matplotlib, Jupyter for data work; and Next.js, React, Node.js, TypeScript, PostgreSQL, Prisma for web. She also codes in C++ and Java."},
+ {k:['learning','vision-language','vlm','research','interest','future','goal'],a:"Right now she's learning vision-language models — AI that combines images and text — and wants to contribute to research on data annotation and on teaching machines to read social and nonverbal cues."},
+ {k:['language','speak','french','german','english'],a:"She speaks English fluently, French at an intermediate level, and some basic German."},
+ {k:['contact','email','reach','hire','connect','phone','linkedin','github','available','open to'],a:"She's open to research roles and internships! Email: akshara.sharma0908@gmail.com — or use the contact form at the bottom of this page. 💌"},
+ {k:['resume','cv'],a:"You can grab her resume from the “Resume ↓” button at the top of the page."},
+ {k:['thank','thanks','cool','nice','great','awesome'],a:"Happy to help ✦ Anything else you'd like to know?"},
+];
+const SUGG=['Who is Akshara?','What has she built?','Tell me about ActiveLabel','Her Siemens internship','What’s her tech stack?','How can I contact her?'];
+function answer(q){q=q.toLowerCase();let best=null,score=0;
+  const has=k=>new RegExp('(^|[^a-z])'+k.replace(/[-]/g,'\\-')+(k.length<5?'([^a-z]|$)':'')).test(q);
+  KB.forEach(e=>{const s=e.k.reduce((n,k)=>n+(has(k)?k.length:0),0);if(s>score){score=s;best=e;}});
+  return best?best.a:"Hmm, I'm not sure about that one. Try asking about her projects, Siemens internship, skills, education or how to contact her ✦";}
+const botBody=document.getElementById('botBody'),botQ=document.getElementById('botQ'),botSugg=document.getElementById('botSugg');
+let botBusy=false;
+function botMsg(cls,html){const b=document.createElement('div');b.className='msg '+cls;b.innerHTML=html;botBody.appendChild(b);botBody.scrollTop=botBody.scrollHeight;return b;}
+async function botReply(text){
+  const ai=botMsg('ai','<span class="dots"><i></i><i></i><i></i></span>');await sleep(reduce?0:700+Math.random()*500);
+  ai.innerHTML='<span class="txt"></span>';const t=ai.firstChild;
+  const words=text.split(' ');for(let i=1;i<=words.length;i++){t.textContent=words.slice(0,i).join(' ');botBody.scrollTop=botBody.scrollHeight;await sleep(reduce?0:35);}
+}
+async function ask(q){q=q.trim();if(!q||botBusy)return;botBusy=true;botQ.value='';
+  const u=botMsg('user','');u.textContent=q;await sleep(250);await botReply(answer(q));botBusy=false;botQ.focus({preventScroll:true});}
+botSugg.innerHTML=SUGG.map(s=>`<button type="button" class="chip">${s}</button>`).join('');
+botSugg.querySelectorAll('button').forEach(b=>b.onclick=()=>ask(b.textContent));
+document.getElementById('botForm').onsubmit=e=>{e.preventDefault();ask(botQ.value);};
+const botIO=new IntersectionObserver(es=>{if(es[0].isIntersecting){botIO.disconnect();
+  botReply("Hi! I'm akshara-bot ✦ Ask me anything about Akshara — or tap a question below.");}},{threshold:.4});
+botIO.observe(botBody);
 
 // section labels become prompt bubbles that pop + type when scrolled into view
 const prompts={about:'who is akshara, in three lines?',experience:'summarise her industry experience',education:'where does she study?',
